@@ -29,7 +29,7 @@ pub async fn unsub(user_id: tbot::types::chat::Id, cmd: Arc<Command<Text>>) -> R
                     found = true;           // When the "IF" is not true mean URL was found. 
                 }
             },
-            Err(_) => println!("Error"),
+            Err(e) => println!("Error : {}", e),
         }
     }
 
