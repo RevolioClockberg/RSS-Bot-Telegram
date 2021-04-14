@@ -1,0 +1,17 @@
+channel_start_message = "Les actualités des flux rss seront maintenant publiés sur ce channel."
+start_message = """Liste des commandes:
+/start     - Affiche ce message.
+/list      - Affiche la liste des flux RSS abonnés.
+/sub       - S'abonner à un flux RSS: `/sub http://example.com/feed`.
+/unsub     - Se désabonner d'un flux RSS: `/unsub http://example.com/feed`.
+"""
+no_date = "Pas de date trouvée"
+no_description = "Pas de description trouvée"
+command_from_channel = "Ce bot ne peut recevoir de commande depuis un channel, cet incident sera signalé."
+command_from_channel_blocked = "Un utilisateur du channel à tenter d'envoyer une commande au bot."
+sub_use = "Utiliser la commande: /sub <RSS URL>"
+sub_wrong_url = "Impossible de trouver un flux RSS valide à partir de cette URL !"
+sub_success = "Abonnement au flux reussi !"
+unsub_use = "Utiliser la commande: /unsub <RSS URL>"
+unsub_success ="Ce flux RSS ne fait maintenant plus partie de votre liste."
+unsub_fail = "La liste des flux RSS ne contient pas cette URL."

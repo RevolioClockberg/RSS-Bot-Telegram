@@ -1,0 +1,17 @@
+channel_start_message = "RSS feeds updates will now be published on this channel."
+start_message = """Liste des commandes:
+/start     - Display this message.
+/list      - Display a list of currently subscribed RSS feeds.
+/sub       - Subscribe to an RSS: `/sub http://example.com/feed`.
+/unsub     - Unsubscribe from an RSS: `/unsub http://example.com/feed`.
+"""
+no_date = "404 date not found"
+no_description = "404 description not found"
+command_from_channel = "This bot can't receive command from channel, incident will be reported."
+command_from_channel_blocked = "A channel user try to sent a command to your favorite bot."
+sub_use = "Please send: /sub <RSS URL>"
+sub_wrong_url = "Can't find valide RSS feed with this URL !"
+sub_success = "Subscription succeeded !"
+unsub_use = "Please send: /unsub <RSS URL>"
+unsub_success ="This feed has been removed from your subscribed feeds."
+unsub_fail = "This feed not exist in your subscribed RSS list."
