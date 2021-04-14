@@ -4,6 +4,13 @@ version = "0.1.0"
 authors = ["Bastien <bastien@example.com>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[build-dependencies]
+ctl10n = "0.2.0"
 
 [dependencies]
+tokio = { version = "0.2", features = ["full"] }
+rss = "1.10"
+chrono = "0.4"
+reqwest = "0.10"
+dissolve = "0.2.2"
+tbot = "0.6"
