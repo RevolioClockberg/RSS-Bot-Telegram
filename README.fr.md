@@ -31,5 +31,9 @@ Le chat privé que vous obtenez à la création du bot va maintenant servir à a
 Attention ces commandes ne fonctionnent que dans le chat privé entre le Bot et l'utilisateur à qui appartient le UserID fournit au lancement du Bot.     
 Le channel rejoint par le Bot n'est utilisé que pour envoyer les dernières mises à jour des flux RSS, mais le chat privé va permettre d'ajouter, d'enlever et de lister les flux RSS suivis.     
 
+
+&nbsp;
+
+
 # Traduction
 **Autres Langues:** [English](README.md)

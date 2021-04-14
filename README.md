@@ -34,5 +34,9 @@ Private chat with the bot is use to manage it. The "/start" command list all com
 Warning all commands only works on the private chat with the bot, commands from channel will be ignored, except "/start" command.     
 On the private chat you can add, remove or list RSS feeds, to update feed.txt file.     
 
+
+&nbsp;
+
+
 # Translation
 **Other Languages:** [Français](README.fr.md)
