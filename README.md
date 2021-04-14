@@ -10,14 +10,14 @@ Install dependancies :
 `$_> sudo apt install librust-openssl-dev`     
 
 Download project sources :     
-`$_> git clone https://github.com/`     
+`$_> git clone https://github.com/RevolioClockberg/RSS-Bot-Telegram.git`     
 
 Build project in release mode :     
-`$_> cd ./nom_du_dossier_projet`     
+`$_> cd ./RSS-Bot-Telegram`     
 `$_> cargo build --release`     
 
 Start bot with token and userID and redirect output to log file :      
-`$_> ./target/release/infoscyberbot BOT_TOKEN USER_ID > ./bot.log &`     
+`$_> ./target/release/RSS-Bot-Telegram BOT_TOKEN USER_ID > ./bot.log &`     
 
 
 &nbsp;
