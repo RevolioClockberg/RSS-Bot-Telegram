@@ -1,4 +1,4 @@
-channel_start_message = "RSS feeds updates will now be published on this channel."
+channel_start_message = "RSS feeds updates from InfosCyberBot will now be published on this channel."
 start_message = """Liste des commandes:
 /start     - Display this message.
 /list      - Display a list of currently subscribed RSS feeds.
@@ -15,3 +15,4 @@ sub_success = "Subscription succeeded !"
 unsub_use = "Please send: /unsub <RSS URL>"
 unsub_success ="This feed has been removed from your subscribed feeds."
 unsub_fail = "This feed not exist in your subscribed RSS list."
+processing = "Processing, please wait..."

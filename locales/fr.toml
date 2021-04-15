@@ -1,4 +1,4 @@
-channel_start_message = "Les actualités des flux rss seront maintenant publiés sur ce channel."
+channel_start_message = "Les actualités des flux rss de InfosCyberBot seront maintenant publiés sur ce channel."
 start_message = """Liste des commandes:
 /start     - Affiche ce message.
 /list      - Affiche la liste des flux RSS abonnés.
@@ -15,3 +15,4 @@ sub_success = "Abonnement au flux reussi !"
 unsub_use = "Utiliser la commande: /unsub <RSS URL>"
 unsub_success ="Ce flux RSS ne fait maintenant plus partie de votre liste."
 unsub_fail = "La liste des flux RSS ne contient pas cette URL."
+processing = "Traitement en cours, veuillez patientez..."
