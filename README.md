@@ -17,7 +17,7 @@ Build project in release mode :
 `$_> cargo build --release`     
 
 Start bot with token and userID and redirect output to log file :      
-`$_> ./target/release/RSS-Bot-Telegram BOT_TOKEN USER_ID > ./bot.log &`     
+`$_> ./target/release/RSS-Bot-Telegram BOT_TOKEN USER_ID CHANNEL_ID &`     
 
 
 &nbsp;
