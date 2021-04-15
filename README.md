@@ -24,7 +24,7 @@ Start bot with token and userID and redirect output to log file :
 
 
 # HOW IT WORKS
-This bot take token (get when you create the bot with @BotFather), your userID (get with @userinfobot) and ID of the channel (https://gist.github.com/mraaroncruz/e76d19f7d61d59419002db54030ebe35) on parameters to start.
+This bot take token (get when you create the bot with @BotFather), your userID (get with @userinfobot) and ID of the channel ([how to find channel ID](https://gist.github.com/mraaroncruz/e76d19f7d61d59419002db54030ebe35)) on parameters to start.
 
 When bot is started, it can be managed with the private chat open on his creation.      
 This bot will check and send RSS update of feeds listed on "feed.txt".   
