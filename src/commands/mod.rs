@@ -24,9 +24,47 @@ pub use unsub::unsub;
 pub use list::list;
 
 
+
+#[derive(Debug, Copy, Clone)]
+struct MsgTarget {
+    chat_id: tbot::types::chat::Id,
+    message_id: tbot::types::message::Id,
+    first_time: bool,
+}
+
+impl MsgTarget {
+    fn new(chat_id: tbot::types::chat::Id, message_id: tbot::types::message::Id) -> Self {
+        MsgTarget {
+            chat_id,
+            message_id,
+            first_time: true,
+        }
+    }
+    fn update(&mut self, message_id: tbot::types::message::Id) {
+        self.message_id = message_id;
+        self.first_time = false;
+    }
+}
+
+
 // Send message on Telegram.
-async fn message(bot: &Bot, target:tbot::types::chat::Id, message: parameters::Text<'_>) -> Result<(), tbot::errors::MethodCall> {
-    bot.send_message(target, message).is_web_page_preview_disabled(true).call().await?;
+async fn message(
+    bot: &Bot,
+    target: &mut MsgTarget,
+    message: parameters::Text<'_>,
+) -> Result<(), tbot::errors::MethodCall> {
+    let msg = if target.first_time {
+        bot.send_message(target.chat_id, message)
+            .is_web_page_preview_disabled(true)
+            .call()
+            .await?
+    } else {
+        bot.edit_message_text(target.chat_id, target.message_id, message)
+            .is_web_page_preview_disabled(true)
+            .call()
+            .await?
+    };
+    target.update(msg.id);
     Ok(())
 }
 
@@ -57,23 +95,32 @@ async fn check_url(feed_url: &str) -> bool {
 }
 
 // Get updates from feeds.
-async fn fetch_update() -> Vec<Channel> {
+pub async fn fetch_update() -> Vec<Channel> {
+    let file = OpenOptions::new().read(true).open("./database/feeds.txt").unwrap();  
+    let reader = BufReader::new(&file);
+
     let mut vec_channels = Vec::new();
-    let file = OpenOptions::new().read(true).open("./feeds.txt").unwrap();
-    let reader = BufReader::new(file);
+    let mut thread_handles = vec![];
 
     for line in reader.lines() {
-        let url = Url::parse(line.unwrap().as_str()).unwrap();
-        let content = reqwest::get(url).await.unwrap().bytes().await.unwrap();
-        let channel = Channel::read_from(&content[..]).unwrap();
+        thread_handles.push(
+            tokio::spawn(async move {
+                let feed_url = Url::parse(&line.unwrap()).unwrap();
+                let content = reqwest::get(feed_url).await.unwrap().bytes().await.unwrap();
+                Channel::read_from(&content[..]).unwrap()
+            })
+        );
+    }
 
+    for handle in thread_handles {
+        let channel = handle.await.unwrap();
         vec_channels.push(channel);
     }
     vec_channels
 }
 
 // Send feeds update on Telegram. 
-async fn push_update(cmd: &Arc<Command<Text>>, channel: Channel) -> Result<(), tbot::errors::MethodCall> {
+pub async fn push_update(bot: &Bot, channel: Channel, chat_id: tbot::types::chat::Id,) -> Result<(), tbot::errors::MethodCall> {
     let item = channel.items.first().unwrap();          // Get the last post of feed.
     let date = {
         match item.pub_date() {
@@ -107,6 +154,6 @@ async fn push_update(cmd: &Arc<Command<Text>>, channel: Channel) -> Result<(), t
     desc = desc.drain(..offset).collect();                                  // description from the last post feed. 
     
     let msg = format!("{}\n{}\n\n{}.\n{}", title, link, desc, date);        // Build the message. 
-    message(&cmd.bot, cmd.chat.id, parameters::Text::with_html(&msg)).await?;
+    bot.send_message(chat_id, parameters::Text::with_plain(&msg)).is_web_page_preview_disabled(true).call().await?;
     Ok(())
 }

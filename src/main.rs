@@ -10,6 +10,7 @@ use tbot::Bot;
 include!(concat!(env!("OUT_DIR"), "/ctl10n_macros.rs"));
 
 mod commands;
+mod notifications;
 
 // Macro to send a parameter to function. 
 macro_rules! handle {
@@ -36,6 +37,9 @@ async fn main() {
 
     let bot = Bot::new(env::args().nth(1).unwrap());                                                    // Create bot with token. 
     let user_id = tbot::types::chat::Id::from(env::args().nth(2).unwrap().parse::<i64>().unwrap());     // Set the UserID. 
+    let chat_id = tbot::types::chat::Id::from(env::args().nth(3).unwrap().parse::<i64>().unwrap());     // Set ChannelID. 
+    
+    notifications::start(bot.clone(), chat_id);             // Send automatically update on channel. 
     
     let me = bot.get_me().call().await.unwrap();            // Get bot infos.
     let bot_name = me.user.username.clone().unwrap();       // Get bot name. 
