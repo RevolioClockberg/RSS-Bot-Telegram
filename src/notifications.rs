@@ -17,12 +17,11 @@ pub fn start(tbot: Bot, chat_id: tbot::types::chat::Id) {
 
             for channel in vec_channels {
                 let title = channel.title.clone();
-                let last = &channel.items().first().unwrap().pub_date().unwrap();    
-                let last_pub_online = DateTime::parse_from_rfc2822(last).unwrap();
+                let last_build = DateTime::parse_from_rfc2822(channel.last_build_date().unwrap()).unwrap();
 
-                if !hash_date.contains_key(&title) || hash_date.get(&title).unwrap() != &last_pub_online {
+                if !hash_date.contains_key(&title) || hash_date.get(&title).unwrap() != &last_build {
                     push_update(&bot, channel, chat_id).await.unwrap();
-                    hash_date.insert(title, last_pub_online);
+                    hash_date.insert(title, last_build);
                     thread::sleep(Duration::from_secs(30));
                 } 
             }
