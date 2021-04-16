@@ -120,8 +120,8 @@ pub async fn fetch_update() -> Vec<Channel> {
 }
 
 // Send feeds update on Telegram. 
-pub async fn push_update(bot: &Bot, channel: Channel, chat_id: tbot::types::chat::Id,) -> Result<(), tbot::errors::MethodCall> {
-    let item = channel.items.first().unwrap();          // Get the last post of feed.
+pub async fn push_update(bot: &Bot, channel: &Channel, chat_id: tbot::types::chat::Id,) -> Result<(), tbot::errors::MethodCall> {
+    let item = channel.items().first().unwrap();          // Get the last post of feed.
     let date = {
         match item.pub_date() {
             Some(date) => DateTime::parse_from_rfc2822(date).unwrap().format("%Y/%m/%d à %H:%M").to_string(),
