@@ -103,13 +103,18 @@ pub async fn fetch_update() -> Vec<Channel> {
     let mut thread_handles = vec![];
 
     for line in reader.lines() {
-        thread_handles.push(
-            tokio::spawn(async move {
-                let feed_url = Url::parse(&line.unwrap()).unwrap();
-                let content = reqwest::get(feed_url).await.unwrap().bytes().await.unwrap();
-                Channel::read_from(&content[..]).unwrap()
-            })
-        );
+        let url_check = &line.unwrap();
+        let url = url_check.clone();
+        
+        if check_url(url_check).await {
+            thread_handles.push(
+                tokio::spawn(async move {
+                    let feed_url = Url::parse(&url).unwrap();
+                    let content = reqwest::get(feed_url).await.unwrap().bytes().await.unwrap();
+                    Channel::read_from(&content[..]).unwrap()
+                })
+            );
+        }
     }
 
     for handle in thread_handles {
