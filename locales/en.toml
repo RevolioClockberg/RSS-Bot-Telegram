@@ -1,5 +1,5 @@
 channel_start_message = "RSS feeds updates from InfosCyberBot will now be published on this channel."
-start_message = """Liste des commandes:
+start_message = """Commands list:
 /start     - Display this message.
 /list      - Display a list of currently subscribed RSS feeds.
 /sub       - Subscribe to an RSS: `/sub http://example.com/feed`.

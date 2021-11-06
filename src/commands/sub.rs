@@ -1,7 +1,6 @@
 // Import mod.rs.
 use super::*;
 
-
 pub async fn sub(user_id: tbot::types::chat::Id, cmd: Arc<Command<Text>>) -> Result<(), tbot::errors::MethodCall> {
     let target = &mut MsgTarget::new(user_id, cmd.message_id); 
     let text = &cmd.text.value;
@@ -18,7 +17,7 @@ pub async fn sub(user_id: tbot::types::chat::Id, cmd: Arc<Command<Text>>) -> Res
     
     message(&cmd.bot,target,parameters::Text::with_html(tr!("processing"))).await?;
 
-    let mut file = OpenOptions::new().read(true).append(true).open("./database/feeds.txt").unwrap();     // Open file in read/write mode. 
+    let mut file = OpenOptions::new().read(true).append(true).open("/path/to/database/feeds.txt").unwrap();     // Open file in read/write mode. 
     let reader = BufReader::new(&file);
 
     for line in reader.lines() {

@@ -20,7 +20,7 @@ pub async fn unsub(user_id: tbot::types::chat::Id, cmd: Arc<Command<Text>>) -> R
 
     let mut vec_new_file = Vec::new();      // To keep all URL for the new file. 
     let mut found = false;
-    let mut file = OpenOptions::new().read(true).open("./database/feeds.txt").unwrap();  // Open file in read-only mode. 
+    let mut file = OpenOptions::new().read(true).open("/path/to/database/feeds.txt").unwrap();  // Open file in read-only mode. 
     let reader = BufReader::new(&file);
 
     for line_read in reader.lines() {
@@ -37,7 +37,7 @@ pub async fn unsub(user_id: tbot::types::chat::Id, cmd: Arc<Command<Text>>) -> R
     }
 
     if found {      // If URL was found, re-write a file without the specified URL. 
-        file = OpenOptions::new().write(true).truncate(true).open("./database/feeds.txt").unwrap();
+        file = OpenOptions::new().write(true).truncate(true).open("/path/to/database/feeds.txt").unwrap();
         for line_write in vec_new_file {
             write!(file, "{}\n", line_write).unwrap();
         }

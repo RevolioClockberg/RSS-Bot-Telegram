@@ -1,3 +1,4 @@
+use std::error::Error;
 use std::sync::Arc;
 use std::fs::OpenOptions;
 use std::io::{BufRead, BufReader, Write};
@@ -68,6 +69,7 @@ async fn message(
     Ok(())
 }
 
+
 // Check if a command is sent from a Telegram Channel. 
 pub async fn check_command(cmd: Arc<Command<Text>>) -> bool {
     match cmd.chat.kind {
@@ -76,89 +78,108 @@ pub async fn check_command(cmd: Arc<Command<Text>>) -> bool {
     }
 }
 
+
 // Check if an url can join RSS feeds list. 
 async fn check_url(feed_url: &str) -> bool {
     let url = Url::parse(feed_url).unwrap(); // Ignore errors.
 
     match reqwest::get(url).await {
         Ok(s) => {
-            let content = s.bytes().await.unwrap();
-            let channel = Channel::read_from(&content[..]).unwrap();
-            let item = channel.items.first().unwrap(); 
-            match item.pub_date() {
-                Some(_) => return true,
-                None => return false,
+            let content = s.bytes().await;
+            match content{
+                Ok(content) => {
+                    let channel = Channel::read_from(&content[..]);
+                    match channel {
+                        Ok(channel) => { let item = channel.items.first().unwrap(); 
+                                        match item.pub_date() {
+                                            Some(_) => return true,
+                                            None => return false,
+                                        }}
+                        Err(_) => return false
+                    }
+                }
+                Err(_) => return false
             }
         },
         Err(_) => return false,
     };
 }
 
-// Get updates from feeds.
-pub async fn fetch_update() -> Vec<Channel> {
-    let file = OpenOptions::new().read(true).open("./database/feeds.txt").unwrap();  
+
+pub async fn fetch_update() -> Result<Vec<Channel>, ()> {
+    let file = OpenOptions::new().read(true).open("/path/to/database/feeds.txt").unwrap();      // Open file in read-only mode. 
     let reader = BufReader::new(&file);
 
     let mut vec_channels = Vec::new();
     let mut thread_handles = vec![];
 
-    for line in reader.lines() {
-        let url_check = &line.unwrap();
-        let url = url_check.clone();
-        
-        if check_url(url_check).await {
-            thread_handles.push(
-                tokio::spawn(async move {
-                    let feed_url = Url::parse(&url).unwrap();
-                    let content = reqwest::get(feed_url).await.unwrap().bytes().await.unwrap();
-                    Channel::read_from(&content[..]).unwrap()
-                })
-            );
+    for line in reader.lines() {      // Read database file.
+        let url = line.unwrap();
+        let channel = get_feed(&url).await;
+
+        match channel {
+            Err(_) => {},
+            Ok(channel) => {
+                thread_handles.push(channel);
+            }
         }
     }
-
+    
     for handle in thread_handles {
-        let channel = handle.await.unwrap();
-        vec_channels.push(channel);
+        vec_channels.push(handle);      // Create a vector of channels
     }
-    vec_channels
+    Ok(vec_channels)
 }
 
-// Send feeds update on Telegram. 
+
+async fn get_feed(url: &String) -> Result<Channel, Box<dyn Error>> {      // Get new from RSS feed URL.
+    let content = reqwest::get(url).await?.bytes().await?;
+    let channel = Channel::read_from(&content[..])?;
+    Ok(channel)
+}
+
+
 pub async fn push_update(bot: &Bot, channel: &Channel, chat_id: tbot::types::chat::Id,) -> Result<(), tbot::errors::MethodCall> {
-    let item = channel.items().first().unwrap();          // Get the last post of feed.
-    let date = {
-        match item.pub_date() {
-            Some(date) => DateTime::parse_from_rfc2822(date).unwrap().format("%Y/%m/%d à %H:%M").to_string(),
-            None => tr!("no_date").to_string(),
-        }
-    };
-    let title = item.title().unwrap().to_string();
-    let link: String = { 
-        match item.guid() {
-            Some(guid) => {
-                if guid.is_permalink() {
-                    guid.value().to_string()
-                } else {
-                    item.link().unwrap().to_string()
-                }
-            },
-            None => item.link().unwrap().to_string(),
-        }
-    };
-    let mut desc: String = {
-        match item.description() {
-            Some(desc) => {
-                desc.to_string()
+    if let Some(item) = channel.items().first() {      // Get the last post of feed.
+        let date = {
+            match item.pub_date() {      // Get publication date.
+                Some(date) => DateTime::parse_from_rfc2822(date).unwrap().format("%Y/%m/%d à %H:%M").to_string(),
+                None => tr!("no_date").to_string(),
             }
-            None => tr!("no_description").to_string(),
+        };
+
+        let link: String = {
+            match item.guid() {      // Get link to article.
+                Some(guid) => {
+                    if guid.is_permalink() {
+                        guid.value().to_string()
+                    } else {
+                        item.link().unwrap().to_string()
+                    }
+                },
+                None => item.link().unwrap().to_string(),
+            }
+        };
+
+        let mut desc: String = {
+            match item.description() {      // Get description.
+                Some(desc) => {
+                    desc.to_string()
+                }
+                None => tr!("no_description").to_string(),
+            }
+        };
+
+        if let Some(title) = item.title() {      // Get title.
+            title.to_string();
+
+            desc = strip_html_tags(&desc).join(" ");                                // Get out all HTML tag. 
+            let offset = desc.find('.').unwrap_or(desc.len());                      // Keep only the first sentence of
+            desc = desc.drain(..offset).collect();                                  // description from the last post feed. 
+            
+            let msg = format!("{}\n{}\n\n{}.\n{}", title, link, desc, date);        // Build the message. 
+            bot.send_message(chat_id, parameters::Text::with_plain(&msg)).is_web_page_preview_disabled(true).call().await?;
         }
-    };
-    desc = strip_html_tags(&desc).join(" ");                                // Get out all HTML tag. 
-    let offset = desc.find('.').unwrap_or(desc.len());                      // Keep only the first sentence of
-    desc = desc.drain(..offset).collect();                                  // description from the last post feed. 
-    
-    let msg = format!("{}\n{}\n\n{}.\n{}", title, link, desc, date);        // Build the message. 
-    bot.send_message(chat_id, parameters::Text::with_plain(&msg)).is_web_page_preview_disabled(true).call().await?;
+    }
     Ok(())
 }
